@@ -1,0 +1,71 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerGroups_c685213a5f72mlccneoi_name": {
+            "defaultValue": "c685213a5f72mlccneoi",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2021-10-01",
+            "name": "[parameters('containerGroups_c685213a5f72mlccneoi_name')]",
+            "location": "centralus",
+            "properties": {
+                "sku": "Standard",
+                "containers": [
+                    {
+                        "name": "[parameters('containerGroups_c685213a5f72mlccneoi_name')]",
+                        "properties": {
+                            "image": "guacpoc.azurecr.io/guacms8:latest",
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": 8443
+                                },
+                                {
+                                    "protocol": "TCP",
+                                    "port": 443
+                                }
+                            ],
+                            "environmentVariables": [],
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 1,
+                                    "cpu": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "initContainers": [],
+                "imageRegistryCredentials": [
+                    {
+                        "server": "guacpoc.azurecr.io",
+                        "username": "guacpoc"
+                    }
+                ],
+                "restartPolicy": "OnFailure",
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": 8443
+                        },
+                        {
+                            "protocol": "TCP",
+                            "port": 443
+                        }
+                    ],
+                    "ip": "20.118.23.162",
+                    "type": "Public",
+                    "dnsNameLabel": "rdp-685213a5f72mlccneoi"
+                },
+                "osType": "Linux"
+            }
+        }
+    ]
+}

@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vulnerabilityAssessments_Default_storageContainerPath": {
+            "value": null
+        },
+        "servers_smarthoteldb685213_name": {
+            "value": null
+        },
+        "bastionHosts_SmartHotelBastion_name": {
+            "value": null
+        },
+        "virtualNetworks_SmartHotelVNet_name": {
+            "value": null
+        },
+        "applicationGateways_SmartHotel_WAF_name": {
+            "value": null
+        },
+        "publicIPAddresses_SmartHotel_WAF_ip_name": {
+            "value": null
+        },
+        "workspaces_smarthotella_name": {
+            "value": null
+        },
+        "publicIPAddresses_SmartHotelBastion_ip_name": {
+            "value": null
+        }
+    }
+}

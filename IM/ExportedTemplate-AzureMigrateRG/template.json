@@ -1,0 +1,199 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "services_SmartHotelDBMigration_name": {
+            "defaultValue": "SmartHotelDBMigration",
+            "type": "String"
+        },
+        "networkInterfaces_Nic_dbmigrate_685213_name": {
+            "defaultValue": "Nic_dbmigrate-685213",
+            "type": "String"
+        },
+        "MigrateProjects_SmartHotelMigration685213_name": {
+            "defaultValue": "SmartHotelMigration685213",
+            "type": "String"
+        },
+        "networkInterfaces_NIC_bgfvqsedwp5nydpc79fnukjs_name": {
+            "defaultValue": "NIC-bgfvqsedwp5nydpc79fnukjs",
+            "type": "String"
+        },
+        "virtualNetworks_DMSvnet_externalid": {
+            "defaultValue": "/subscriptions/572ac722-4f11-409c-894d-bc4896a7e60b/resourceGroups/SmartHotelHostRG/providers/Microsoft.Network/virtualNetworks/DMSvnet",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Migrate/MigrateProjects",
+            "apiVersion": "2020-05-01",
+            "name": "[parameters('MigrateProjects_SmartHotelMigration685213_name')]",
+            "location": "centralus",
+            "properties": {
+                "publicNetworkAccess": "Enabled",
+                "serviceEndpoint": "https://d2930978-473c-4f4c-b5d8-ccc361f619b0-isv.cus.hub.privatelink.prod.migration.windowsazure.com/resources/d2930978-473c-4f4c-b5d8-ccc361f619b0"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkInterfaces_Nic_dbmigrate_685213_name')]",
+            "location": "centralus",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAddress": "10.1.0.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_DMSvnet_externalid'), '/subnets/DMS')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('networkInterfaces_NIC_bgfvqsedwp5nydpc79fnukjs_name')]",
+            "location": "centralus",
+            "tags": {
+                "ServiceResourceId": "/subscriptions/572ac722-4f11-409c-894d-bc4896a7e60b/resourceGroups/AzureMigrateRG/providers/Microsoft.DataMigration/services/SmartHotelDBMigration"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAddress": "10.1.0.5",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[concat(parameters('virtualNetworks_DMSvnet_externalid'), '/subnets/DMS')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false
+            }
+        },
+        {
+            "type": "Microsoft.DataMigration/services",
+            "apiVersion": "2022-03-30-preview",
+            "name": "[parameters('services_SmartHotelDBMigration_name')]",
+            "location": "centralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_NIC_bgfvqsedwp5nydpc79fnukjs_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_1vCores",
+                "tier": "Standard",
+                "size": "1 vCores"
+            },
+            "kind": "Cloud",
+            "properties": {
+                "virtualNicId": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_NIC_bgfvqsedwp5nydpc79fnukjs_name'))]",
+                "virtualSubnetId": "[concat(parameters('virtualNetworks_DMSvnet_externalid'), '/subnets/DMS')]"
+            }
+        },
+        {
+            "type": "Microsoft.Migrate/MigrateProjects/Solutions",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[concat(parameters('MigrateProjects_SmartHotelMigration685213_name'), '/Servers-Assessment-ServerAssessment')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Migrate/MigrateProjects', parameters('MigrateProjects_SmartHotelMigration685213_name'))]"
+            ],
+            "properties": {
+                "tool": "ServerAssessment",
+                "purpose": "Assessment",
+                "goal": "Servers",
+                "status": "Active",
+                "cleanupState": "None",
+                "summary": {
+                    "instanceType": "Servers",
+                    "discoveredCount": 0,
+                    "assessedCount": 0,
+                    "replicatingCount": 0,
+                    "testMigratedCount": 0,
+                    "migratedCount": 0
+                },
+                "details": {
+                    "groupCount": 0,
+                    "assessmentCount": 0,
+                    "extendedDetails": {}
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Migrate/MigrateProjects/Solutions",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[concat(parameters('MigrateProjects_SmartHotelMigration685213_name'), '/Servers-Discovery-ServerDiscovery')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Migrate/MigrateProjects', parameters('MigrateProjects_SmartHotelMigration685213_name'))]"
+            ],
+            "properties": {
+                "tool": "ServerDiscovery",
+                "purpose": "Discovery",
+                "goal": "Servers",
+                "status": "Inactive",
+                "cleanupState": "None",
+                "summary": {
+                    "instanceType": "Servers",
+                    "discoveredCount": 0,
+                    "assessedCount": 0,
+                    "replicatingCount": 0,
+                    "testMigratedCount": 0,
+                    "migratedCount": 0
+                },
+                "details": {
+                    "groupCount": 0,
+                    "assessmentCount": 0,
+                    "extendedDetails": {}
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Migrate/MigrateProjects/Solutions",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[concat(parameters('MigrateProjects_SmartHotelMigration685213_name'), '/Servers-Migration-ServerMigration')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Migrate/MigrateProjects', parameters('MigrateProjects_SmartHotelMigration685213_name'))]"
+            ],
+            "properties": {
+                "tool": "ServerMigration",
+                "purpose": "Migration",
+                "goal": "Servers",
+                "status": "Active",
+                "cleanupState": "None",
+                "summary": {
+                    "instanceType": "Servers",
+                    "discoveredCount": 0,
+                    "assessedCount": 0,
+                    "replicatingCount": 0,
+                    "testMigratedCount": 0,
+                    "migratedCount": 0
+                },
+                "details": {
+                    "groupCount": 0,
+                    "assessmentCount": 0,
+                    "extendedDetails": {}
+                }
+            }
+        }
+    ]
+}
